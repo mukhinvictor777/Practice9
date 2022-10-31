@@ -12,18 +12,26 @@
     return result;
 }
 
-void numberRange(int N)
+void printRangeFromMtoN(int M, int N)
 {
-    if (N == 0)
+    if (N == M - 1)
     {
         return;
     }
-    numberRange(N - 1);
+    printRangeFromMtoN(M, N - 1);
     Console.Write($"{N}, ");
 }
 
+Console.Write("Введите значение M: ");
+int userNumberM = getNumberFromUser("");
 Console.Write("Введите значение N: ");
-int userNumber = getNumberFromUser("");
-Console.Write($"N = {userNumber} -> ");
-numberRange(userNumber);
+int userNumberN = getNumberFromUser("");
+if (userNumberM > userNumberN)
+{
+    int buffer = userNumberN;
+    userNumberN = userNumberM;
+    userNumberM = buffer;
+}
+Console.Write($"M = {userNumberM}; N = {userNumberN} -> ");
+printRangeFromMtoN(userNumberM, userNumberN);
 Console.WriteLine();
