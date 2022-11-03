@@ -7,23 +7,27 @@
         if (i < incomingArray.Length - 1)
         {
             Console.Write(" ");
-        }
-        Console.Write(" ] ");    
+        }  
     }
+    Console.Write(" ] ");
 }
 
-void printArrayFromIndex(int[] incomingArray, int startIndex, int endIndex)
+void printColorData(string data)
 {
-    Console.Write(" [ ");
-    for (int i = startIndex; i <= endIndex; i++)
-    {
-        Console.Write(incomingArray[i]);
-        if (i < incomingArray.Length - 1)
-        {
-            Console.Write(" ");
-        }   
-    }
+    Console.ForegroundColor = ConsoleColor.Green;
+    Console.Write(data);
+    Console.ResetColor();
 }
+
+int [] createCopyArray(int[] incomingArray)
+{
+    int [] copiedArray = new int [incomingArray.Length];
+    for (int i = 0; i < copiedArray.Length; i++)
+    {
+        copiedArray[i] = incomingArray[i];
+    }
+    return copiedArray;
+} 
 
 int sumOfPositiveNumbers(int [] userArray)
 {
@@ -54,7 +58,7 @@ int sumOfNegativeNumbers(int [] userArray)
 int sumOfNumbersInArray(int [] userArray, int startIndex, int EndIndex)
 {
     int sum = 0;
-    for (int i = 0; i < userArray.Length; i++)
+    for (int i = startIndex; i <= EndIndex; i++)
     {
         {
             sum = sum + userArray[i];
@@ -102,18 +106,19 @@ void checkPlentyFromArray(int [] userArray, int plentySum)
 {
     int sumOfPositive = sumOfPositiveNumbers (userArray);
     int sumOfNegative = sumOfNegativeNumbers (userArray);
-    int sum = sumOfNumbersInArray(userArray, 0, userArray.Length);
+    int sum = sumOfNumbersInArray(userArray, 0, userArray.Length-1);
     int tempLenght = userArray.Length;
-    int [] plenty = userArray;
+    int[] plenty = new int [userArray.Length];
     int positive = 1;
     int negative = 1;
-    int countOfActions = 0;
+    int countOfActions = 0; // счетчик количества перебранных алгоритмом комбинаций для сравнения эффективности с общим числом всех возможных комбинаций
+    int cointOfAnswers = 0; // счетчик числа найденных подмножеств
     Console.WriteLine();
     if (plentySum > sumOfPositive)
     {
         Console.Write("В множистве ");
         printArray(userArray);
-        Console.WriteLine($" не существует подмножества с суммой всех элементов равной {plentySum}");
+        Console.WriteLine($" не существует подмножества с суммой всех элементов равной {plentySum}"); // проверка на существование множеств
         Console.WriteLine();
     }
         else 
@@ -121,37 +126,42 @@ void checkPlentyFromArray(int [] userArray, int plentySum)
         {
             Console.Write("В множистве ");
             printArray(userArray);
-            Console.WriteLine($" не существует подмножества с суммой всех элементов равной {plentySum}");
+            Console.WriteLine($" не существует подмножества с суммой всех элементов равной {plentySum}"); // проверка на существование множеств
             Console.WriteLine();
         }
         else
         {
-            if (plentySum == 0)
+            plenty = createCopyArray(userArray);
+            if (plentySum == 0) // проверка нулевых элементов в исходном множестве
             {
+                cointOfAnswers++;
                 Console.Write("В множистве ");
                 printArray(userArray);
-                Console.WriteLine(" существует пустое подмножество, где нет ни одного элемента");
+                Console.WriteLine($"{cointOfAnswers} \t существует пустое подмножество, где нет ни одного элемента"); // выводим на экран мноэество, сумма элементов которого равна заданному числу
                 Console.WriteLine();
                 countOfActions++;
                 for (int i = 0; i < tempLenght; i++)
                 {
                     if (plenty[i] == 0)
                     {
+                        cointOfAnswers++;
                         Console.Write("В множистве ");
                         printArray(userArray);
-                        Console.WriteLine(" существует пустое подмножество, состоящее из [ 0 ]");
+                        Console.WriteLine($"{cointOfAnswers} \t существует пустое подмножество, состоящее из [ 0 ]"); // выводим на экран мноэество, сумма элементов которого равна заданному числу
                         Console.WriteLine();
-                        plenty = RemovedElementInArray(plenty, i);
+                        plenty = RemovedElementInArray(plenty, i); // удаление нулей из исходного множества
                         tempLenght -= 1;
                         countOfActions++;
                     }
                 }
             }
-            if (sum == plentySum)
+            if (sum == plentySum) // проверка полного равенства
             {
+                cointOfAnswers++;
                 Console.Write("В множистве ");
                 printArray(userArray);
-                Console.WriteLine($" существует подмножество с суммой всех элементов равной {plentySum}");
+                Console.WriteLine($"существует подмножество с суммой всех элементов равной {plentySum}"); // выводим на экран мноэество, сумма элементов которого равна заданному числу
+                Console.Write($"{cointOfAnswers}\t");
                 printArray(userArray);
                 Console.WriteLine();
                 countOfActions++;
@@ -160,20 +170,20 @@ void checkPlentyFromArray(int [] userArray, int plentySum)
             {
                 if (plenty[i] == 0)
                 {
-                    plenty = RemovedElementInArray(plenty, i);
-                    tempLenght -= 1; 
+                    plenty = RemovedElementInArray(plenty, i); // удаление нулей из исходного множества
+                    tempLenght -= 1;
+                    countOfActions++;
                 }
             }
-            plenty = sortArray(plenty);
-            printArray(plenty);
-            Console.WriteLine();
+            plenty = sortArray(plenty); // сортировака множества по возрастанию
             tempLenght = plenty.Length;
             
             for (int i = 0; i < plenty.Length; i++)
             {
                 if (plenty[i] < 0)
                 {
-                    positive = 0;
+                    positive = 0; 
+                    countOfActions++;
                     break;
                 }
             }
@@ -183,7 +193,9 @@ void checkPlentyFromArray(int [] userArray, int plentySum)
                 {
                     if (plentySum < plenty[i])
                     {
-                        plenty = RemovedElementInArray(plenty, i);
+                        plenty = RemovedElementInArray(plenty, i); // если все эелементы положительные, то удаляем элементы множества, которые не могут образовать искомую сумму
+                        countOfActions++;
+                        tempLenght--;
                     }
                 }
             }
@@ -194,6 +206,7 @@ void checkPlentyFromArray(int [] userArray, int plentySum)
                     if (plenty[i] > 0)
                     {
                         negative = 0;
+                        countOfActions++;
                         break;
                     }
                 }
@@ -203,106 +216,102 @@ void checkPlentyFromArray(int [] userArray, int plentySum)
                     {
                         if (plenty[i] < plentySum)
                         {
-                            plenty = RemovedElementInArray(plenty, i);
+                            plenty = RemovedElementInArray(plenty, i); // если все эелементы отрицательные, то удаляем элементы множества, которые не могут образовать заданную сумму
+                            countOfActions++;
                             tempLenght--;
                         }
                     }
                 }
-            }
-                      
+            }            
             tempLenght = plenty.Length;
             printArray(plenty);
             Console.WriteLine();
             for (int i = 0; i < tempLenght; i++)
             {
                 countOfActions++;
-                if  (plenty[i] == plentySum)
+                if  (plenty[i] == plentySum) // проверяем каждый элемент исходного множества на равенство заданной сумме
                 {
+                    cointOfAnswers++;
                     Console.Write("В множистве ");
                     printArray(userArray);
-                    Console.WriteLine($" существует подмножество {plenty[i]} с суммой всех элементов равной {plentySum}");
+                    Console.WriteLine($"{cointOfAnswers} \t существует подмножество [ {plenty[i]} ] с суммой всех элементов равной {plentySum}"); // выводим на экран мноэество, сумма элементов которого равна заданному числу
                     Console.WriteLine();
                 }
             }
-
-            int difference = 0;
-            int sumSecondCycle = 0;
-            int sumTemporary = 0;
+            //Начинается основной алгоритм перебора вариантов
             int left = 0;
-            int right = 0;
-            int firstPositiveIndex = 0;
-            int[] temporaryArray = {plenty[0]};
-            for (int i = 0; i < tempLenght; i++)
+            int right = tempLenght-1;
+            int leftSum = 0;
+            int rightSum = 0;
+            int tempCountOfDigit = 2;
+            int[] answerArray = new int[tempCountOfDigit];
+            int finded = 0;
+            for (int kl = 0; kl < tempLenght-2; kl++) // kr = количество элементов слева для проверки суммы - 1 (-1 используется для более указания на нуженый индекс в массиве)
             {
-                if (plenty[i] > 0)
+                leftSum = sumOfNumbersInArray(plenty, left, left + kl);
+                for (int kr = 0; kr < tempLenght-2; kr++) // kl = количество элементов справа для проверки суммы - 1 (-1 используется для более указания на нуженый индекс в массиве)
                 {
-                    firstPositiveIndex = i;
-                    break;
-                }
-                else
-                {
-                    firstPositiveIndex = tempLenght - 1;
-                }
-            }
-            // Начинается основной алгоритм перебора вариантов
-            while (temporaryArray.Length < tempLenght - 1)
-            {
-                for (int k = 0; k < temporaryArray.Length; k++)
-                {
-                    for (int i = 0; i < tempLenght-1; i++)
+                    rightSum = sumOfNumbersInArray(plenty, right - kr, right);
+                    while ((left + kl < right - kr)&&(finded == 0))
                     {
-                        temporaryArray[k] = plenty[i];
-                        sumSecondCycle = sumOfNumbersInArray(temporaryArray, 0, temporaryArray.Length);
-                        difference = plentySum - sumSecondCycle;
-                        if (difference == 0)
+                        if (leftSum + rightSum == plentySum) // сначала суммируем минимальный элемент с максимальным и проверяем на равенство сумме
                         {
+                            for (int i = 0; i <= kl; i++)
+                            {
+                                answerArray[i] = plenty[left+i]; // записываем элементы слева в массив для печати ответа
+                            }
+                            for (int i = 0; i <= kr; i++)
+                            {
+                                answerArray[i+kl+1] = plenty[right-i]; // записываем элементы справа в массив для печати ответа
+                            }    
+                            cointOfAnswers++;
                             Console.Write("В множистве ");
                             printArray(userArray);
-                            Console.WriteLine($" существует подмножество с суммой всех элементов равной {plentySum}");
-                            printArray(temporaryArray);   
+                            Console.WriteLine($"существует подмножество с суммой всех элементов равной {plentySum}"); // выводим на экран мноэество, сумма элементов которого равна заданному числу
+                            printColorData($"{cointOfAnswers}\t");
+                            printArray(answerArray);
+                            Console.WriteLine();
+                            countOfActions++;
+                            finded = 1;
                         }
                         else
                         {
-                            if (difference > 0)
+                            if (leftSum + rightSum < plentySum)
                             {
-                                if (difference > plenty[tempLenght-1])
-                                {
-                                    break;
-                                }
-                                else
-                                    {
-                                        left = firstPositiveIndex;
-                                        right = tempLenght - 1;
-                                        while (right > left)
-                                        {
-                                            countOfActions++;
-                                            if (difference == plenty[right])
-                                            {
-                                                Console.Write("В множистве ");
-                                                printArray(userArray);
-                                                Console.WriteLine($" существует подмножество с суммой всех элементов равной {plentySum}");
-                                                printArrayFromIndex(plenty, startIndex, endIndex);
-                                                console.Write($" {plenty[right]} ] ");
-                                                Console.WriteLine();  
-                                            }
-                                            else
-                                            {
-                                                left = (right - left)/2;
-                                            }
-                                        }
-                                    }
+                                leftSum -= plenty[left];
+                                left++;
+                                leftSum += plenty[left+kl];
+                                countOfActions++;
+                            }
+                            else
+                            {
+                                rightSum -= plenty[right];
+                                right--;
+                                rightSum += plenty[right-kr];
+                                countOfActions++;
                             }
                         }
                     }
-                Array.Resize(ref temporaryArray, temporaryArray.Length + 1);
+                    Array.Resize(ref answerArray, answerArray.Length + 1);
+                    right = tempLenght - 1;
+                    rightSum = sumOfNumbersInArray(plenty, right - kr, right);
+                    left = 0;
+                    leftSum = sumOfNumbersInArray(plenty, left, left + kl);
+                    finded = 0;
+                }
+                tempCountOfDigit++;
+                while (answerArray.Length != tempCountOfDigit)
+                {
+                    Array.Resize(ref answerArray, answerArray.Length - 1);
+                }
             }
         }
-    }
-    maxCountOfActions = Math.Pow(2, userArray.Length);
+        
+    double maxCountOfActions = Math.Pow(2, userArray.Length);
     Console.WriteLine($"Количество комбинаций множеств, перебранное алгоритмом равно {countOfActions}");
     Console.WriteLine($"Общее количество комбинаций множеств равно {maxCountOfActions}");
+    Console.WriteLine();
 }
 
 int [] userArray = new int [20] {-1, 0, -8, -5, -7, -5, -3, -15, 2, 4, 18, 25, 12, 9, -12, 0, 35, 3, 8, 11};
-printArray(userArray);
-checkPlentyFromArray(userArray, 40);
+checkPlentyFromArray(userArray, 110);
